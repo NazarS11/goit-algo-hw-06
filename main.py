@@ -1,18 +1,18 @@
 from collections import UserDict
 import re
 
-class Field:                                                                                                    # універсальний клас для отримання значення для поля                                                                                                       
+class Field:                                                                                                    
     def __init__(self, value):
         self.value = value
 
     def __str__(self):
         return str(self.value)
 
-class Name(Field):                                                                                              # клас для зберігання імені                                                                                       
+class Name(Field):                                                                                     
     def __init__(self, value):
         self.value = value
 
-class Phone(Field):                                                                                             # клас для зберігання телефону з перевіркою на відповідність умові == 10 цифр                                                                                       
+class Phone(Field):                                                                                     
 
     def __init__(self, value):
        self.value = value
@@ -21,14 +21,14 @@ class Phone(Field):                                                             
     def value(self):
         return self._value
 
-    @value.setter                                                                                               # сеттер який валідує значення телефону                                                                                             
+    @value.setter                                                                                             
     def value(self, new_value):
         if re.fullmatch(r'\d{10}', new_value):
             self._value = new_value
         else:
             raise ValueError(f"Phone number {new_value} should consist of 10 digits")
         
-class Record:                                                                                                   # клас для обєднання імені і телефонів в окремий запис адресної книги                                                                                           
+class Record:                                                                                          
     def __init__(self, name):
         self.name = Name(name)
         self.phones = []
@@ -36,36 +36,38 @@ class Record:                                                                   
     def __str__(self):                                                                                         
         return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
 
-    def find_phone(self, phone: str):                                                                           # метод для пошуку телефона, якщо телефон знайдено повертає зеайдений телефон типу Phone, в іншому випадку None  
+    def find_phone(self, phone: str): 
         for existing_phone in self.phones:
             if phone == existing_phone.value:
                 return existing_phone
         return None
         
-    def add_phone(self, phone:str):                                                                             # метод для додавання телефону в список телефонів                                                                             
+    def add_phone(self, phone:str):                                                                           
         if not self.find_phone(phone):
             self.phones.append(Phone(phone))
             
-    def remove_phone(self, phone:str):                                                                          # метод для видалення телефону зі списку  
+    def remove_phone(self, phone:str):  
         phone_for_remove = self.find_phone(phone)                                                                              
         if phone_for_remove:
             self.phones.remove(phone_for_remove)
 
-    def edit_phone(self, old:str, new:str):                                                                     # метод для редагування телефону 
-        if self.find_phone(old):
-            self.find_phone(old).value = new
+    def edit_phone(self, old:str, new:str):
+        phone_for_edit = self.find_phone(old)     
+        if phone_for_edit:
+            phone_for_edit.value = new
+        else: raise ValueError(f"Contact {self.name} has no phone number: {old}")
 
-class AddressBook(UserDict):                                                                                    # клас Адресна Книга для зберігання записів класу Record
+class AddressBook(UserDict):
 
-    def add_record(self, record:Record):                                                                        # метод для додавання записів в адресну книгу
+    def add_record(self, record:Record):
         self.data[record.name.value] = record
 
-    def find(self, name: str) -> Record:                                                                        # метод для пошуку записів по імені, повертає запис типу Record
+    def find(self, name: str) -> Record:
         for key in self.data.keys():
             if key == name:
                 return self.data[key]
 
-    def delete(self, name: str):                                                                                # метод для видалення записів з адресної книги
+    def delete(self, name: str):
         for key in self.data.keys():
             if key == name:
                 del self.data[key]
